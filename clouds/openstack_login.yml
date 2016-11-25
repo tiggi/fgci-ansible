@@ -1,0 +1,52 @@
+---
+
+######################### LOGIN
+
+- name: grab facts from install nodes
+  hosts: production
+  tasks: [ ]
+
+- name: Login Node
+  hosts: login
+  become: yes
+  vars:
+    - disable_packages: [] # no firewalld on pouta CentOS7 image
+
+  roles: 
+  - { role: ansible-role-fgci-repo, tags: [ 'fgci7', 'repos' ] }
+  - { role: ansible-role-yum, tags: [ 'yum', 'repos' ] }
+  - { role: ansible-role-selinux, tags: [ 'selinux' ] }
+  - { role: ansible-role-ferm-firewall, tags: [ 'firewall', 'network' ] }
+  - { role: ansible-role-fail2ban, tags: [ 'firewall', 'fail2ban', 'network' ] }
+#  - { role: network_interface, tags: [ 'network' ] }
+  - { role: ansible-role-hosts-int, tags: [ 'hosts'] }
+  - { role: dns, tags: [ 'dns' ] }
+  - { role: ansible-role-chrony, tags: [ 'ntp', 'chrony'] }
+  - { role: ansible-role-nis, tags: [ 'nis' ] }
+  - { role: ansible-role-adauth, tags: [ 'auth' ] }
+  - { role: ansible-role-pam, tags: [ 'auth', 'pam' ] }
+  - { role: ansible-role-nsswitch, tags: [ 'nsswitch', 'auth' ] }
+  - { role: ansible-role-yum-cron-2, tags: [ 'yumcron' ] }
+  - { role: ansible-role-rsyslog, tags: [ 'rsyslog' ] }
+  - { role: ansible-role-open-vm-tools, tags: ['open-vm-tools'] }
+  - { role: ansible-role-idmapd, tags: [ 'idmapd' ] }
+  - { role: ansible-role-nfs_mount, tags: [ 'nfsmount' ] }
+  - { role: ansible-role-autofs, tags: [ 'autofs' ] }
+  - { role: ansible-role-squid, tags: [ 'squid' ] }
+  - { role: ansible-role-fgci-login, tags: [ 'login'] }  
+  - { role: ansible-role-slurm, tags: [ 'slurm' ] }
+  - { role: ansible-role-cvmfs, tags: [ 'cvmfs' ] }
+  - { role: ansible-role-aliases, tags: [ 'aliases', 'email' ] }
+#  - { role: ansible-role-rdma, tags: [ 'rdma', 'infiniband' ] }
+#  - { role: ansible-role-smartd, tags: [ 'smartd' ] }
+  - { role: ansible-role-system-limits, tags: [ 'limits', 'limit' ] }
+  - { role: ansible-role-arc-client, tags: [ 'arc', 'nordugrid' ] }
+  - { role: ansible-role-collectd, tags: [ 'collectd', 'monitoring' ] }
+  - { role: ansible-role-fgci-bash, tags: [ 'bash'] }  
+  - { role: ansible-role-sshd, tags: [ 'sshd', 'ssh' ] }
+#  - { role: ansible-role-dell, tags: [ 'dell' ] }
+  - { role: ansible-role-sshd-host-keys, tags: [ 'sshd', 'ssh', 'host-keys' ] }
+  - { role: ansible-role-postfix, tags: [ 'postfix', 'mail' ] }
+  - { role: ansible-role-systemd-journal, tags: [ 'systemd', 'journal', 'journald' ] }
+  - { role: ansible-role-lustre_client, tags: [ 'lustre' ] }
+

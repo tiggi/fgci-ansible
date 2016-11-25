@@ -1,0 +1,30 @@
+---
+# The packages in unconfigured_packages list is installed by ansible-role-yum. It is overridden by all the other groups_vars in FGCI. 
+# Keeping it here for future use.
+unconfigured_packages:
+  - bash-completion
+  - epel-release
+  - git
+  - mcelog
+  - net-tools
+  - nfs-utils
+  - nscd
+  - openssh-server
+  - pdsh
+  - pciutils
+  - perl-Filesys-Df
+  - time
+  - wget
+  - yum-plugin-fastestmirror
+
+ib_unconfigured_packages:
+  - "@infiniband"
+  - infiniband-diags
+
+remove_packages:
+  - phonon-backend-gstreamer
+  - qt-x11
+  - redhat-lsb-graphics
+  - "NetworkManager"
+  - "NetworkManager-team"
+  - "NetworkManager-tui"

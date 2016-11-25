@@ -1,0 +1,3 @@
+files/
+secrets*
+group_vars/all/secrets*

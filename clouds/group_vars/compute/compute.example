@@ -1,0 +1,110 @@
+---
+
+internal_interface: "eth0"
+
+infiniband_available: False
+rdma_configure_single_port: False
+
+networks:
+  - "network --onboot=yes --bootproto=dhcp --device={{ internal_interface }} --noipv6"
+
+# NTP
+ntp_config_server: [ "{{ hostvars[groups['install'][0]]['ansible_hostname'] }}" ]
+# DNS
+nameserver1: "193.166.4.24"
+# CVMFS
+cvmfs_http_proxy: "{{ http_proxy }}"
+# YUM proxy
+yum_proxy: "{{ http_proxy }}"
+# Install NHC from FGCI's yum
+nhc_use_default_checks: False
+nhc_github: False
+# To add a custom NHC checks in addition to the defaults, define like below (do keep the check_reboot_slurm  - used to be able to drain and reboot nodes):
+nhc_checks:
+ - { match: "*", name: "check_reboot_slurm", arguments: "" }
+ - { match: "*", name: "check_file_test", arguments: "-r -s /cvmfs/fgi.csc.fi/README" }
+ - { match: "*", name: "check_hw_eth", arguments: "eth0" }
+
+# Run ansible-pull during kickstart
+ansible_pull_kickstart: true
+# SSHD
+sshd:
+ PermitRootLogin: "without-password"
+
+# Fetch the sshd host_keys from NFS
+generate_ssh_host_keys: False
+generate_ssh_known_hosts: False
+install_ssh_host_keys_to_nfs: False
+install_ssh_host_keys_from_nfs: False
+install_ssh_known_hosts_from_http: False
+
+# PAM
+pam_enabled: True
+pam_use_sssd: False
+pam_enable_slurm: True
+slurm_access_groups:
+ - "{{ admingroup | default('admin') }}"
+ - "root"
+ - "wheel"
+
+#Limits for MPI
+limits_domains:
+  - domain: '*'
+    type: 'hard'
+    item: memlock
+    value: unlimited
+  - domain: '*'
+    type: 'soft'
+    item: memlock
+    value: unlimited
+  - domain: '*'
+    type: 'hard'
+    item: stack
+    value: unlimited
+  - domain: '*'
+    type: 'soft'
+    item: stack
+    value: unlimited
+
+## PXE
+
+kickstart_packages: |
+  ansible
+  atlas
+  blas
+  bonnie++
+  cvs
+  epel-release
+  fftw
+  fftw2
+  gcc
+  gcc-c++
+  gcc-gfortran
+  git
+  glibc.i686
+  hdf5-openmpi
+  @infiniband
+  infiniband-diags
+  iperf
+  java-1.8.0-openjdk
+  lapack
+  libcgroup
+  libgcc.i686
+  libgfortran
+  libstdc++.i686
+  libxml2.i686
+  mcelog
+  mpitests-openmpi
+  netcdf
+  nfs-utils
+  nscd
+  numpy
+  openmpi
+  openssh-server
+  perl-Filesys-Df
+  subversion
+  xerces-c
+  yum-plugin-fastestmirror
+  Lmod
+  wget
+#  bzip2

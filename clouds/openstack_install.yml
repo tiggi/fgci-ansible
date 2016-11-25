@@ -1,5 +1,7 @@
 ---
 
+##### Install Node
+
 - name: First add users to install node as root
   hosts: install
   gather_facts: False
@@ -11,14 +13,18 @@
 - name: Install Node
   hosts: install
   vars:
-    gitmirror_generate_config: False
-    disable_packages: [] # no firewalld on pouta CentOS7 image
+    - gitmirror_generate_config: False
+    - disable_packages: [] # no firewalld on pouta CentOS7 image
+    - slurm_munge_key_to_nfs: False
+    - slurm_compute_nodes: "compute1"
+    - nis_secure_net: "{{ int_net_mask }} {{ int_net_addr }}"
+
   become: True
 
   roles: 
   - { role: ansible-role-fgci-repo, tags: [ 'fgci7', 'repos' ] }
   - { role: ansible-role-yum, tags: [ 'yum', 'repos' ] }
-  - { role: ansible-role-ferm-firewall, tags: [ 'firewall', 'network' ] }
+  - { role: ansible-role-ferm-firewall, tags: [ 'firewall', 'network', 'ferm' ] }
 #  - { role: network_interface, tags: [ 'network' ] }
   - { role: ip_forwarder, tags: [ 'network' ], 
     when: internal_interface is defined and
@@ -26,6 +32,7 @@
           internal_net is defined and
           internal_interface in ansible_interfaces and
           external_interface in ansible_interfaces }
+  - { role: ansible-role-hosts-int, tags: [ 'hosts'] }
   - { role: ansible-role-chrony, tags: [ 'ntp', 'chrony' ] }
   - { role: ansible-role-autofs, tags: [ 'autofs' ] }
   - { role: ansible-role-nis, tags: [ 'nis' ] }
@@ -49,18 +56,3 @@
   - { role: ansible-role-idmapd, tags: [ 'idmapd'] }
   - { role: ansible-role-systemd-journal, tags: [ 'systemd', 'journal', 'journald' ] }
 #  - { role: ansible-role-flowdock, tags: [ 'flowdock', 'always' ] }
- 
-#- name: grab facts from production nodes
-#  hosts: production
-#  tasks: [ ]
-#  gather_facts: yes
-#
-#- name:  Configure Admin Node After Install node
-#  hosts: admin
-#  become: yes
-#
-#  roles:
-#  - { role: dns, tags: [ 'dns' ] }
-#  - { role: ansible-role-collectd, tags: [ 'collectd', 'monitoring' ] }
-#  - { role: ansible-role-flowdock, tags: [ 'flowdock', 'always' ] }
-#
