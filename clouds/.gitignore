@@ -6,3 +6,4 @@ group_vars/all/secrets*
 *openrc*
 # my-heat-params.yml 
 *-heat-params.yml
+*_inventory

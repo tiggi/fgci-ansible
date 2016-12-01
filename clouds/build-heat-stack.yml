@@ -50,7 +50,7 @@
   connection: local
   tasks:
     - name: Generate an inventory file
-      template: src=templates/fgci_inventory.j2 dest=../fgci_inventory
+      template: src=templates/fgci_inventory.j2 dest=./fgci_inventory
 
 - hosts: localhost
   gather_facts: no
