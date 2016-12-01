@@ -1,3 +1,8 @@
 files/
 secrets*
 group_vars/all/secrets*
+!ansible.cfg
+# the openstack tokens
+*openrc*
+# my-heat-params.yml 
+*-heat-params.yml
