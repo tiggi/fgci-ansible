@@ -1,7 +1,26 @@
-[etherpad]
-etherpad_node ansible_ssh_host={{ hostvars['etherpad_node']['ansible_ssh_host'] }}
+[install]
+install_node ansible_ssh_host={{ hostvars['install_node']['ansible_ssh_host'] }}
+
+[grid]
+grid_node ansible_ssh_host={{ hostvars['grid_node']['ansible_ssh_host'] }}
 
 [galera]
 {% for node in groups['galera'] %}
 {{ node }} ansible_ssh_host={{ hostvars[node]['ansible_ssh_host'] }}
 {% endfor %}
+
+[slurm_service:children]
+install
+
+[compute]
+{% for node in groups['compute'] %}
+{{ node }} ansible_ssh_host={{ hostvars[node]['ansible_ssh_host'] }}
+{% endfor %}
+
+[production:children]
+install
+grid
+
+[slurm_compute:children]
+compute
+

@@ -1,4 +1,4 @@
-files/
+files/*munge*
 secrets*
 group_vars/all/secrets*
 !ansible.cfg
@@ -7,3 +7,4 @@ group_vars/all/secrets*
 # my-heat-params.yml 
 *-heat-params.yml
 *_inventory
+!example*

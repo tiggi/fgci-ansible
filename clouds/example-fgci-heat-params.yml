@@ -1,0 +1,19 @@
+# This is an example parameter file for Heat. The minimum set of deployment
+# specific parameters to set for Heat are documented here.
+parameter_defaults:
+  ssh_key_name: ""
+  install_node_flavor: ""
+  install_node_image: ""
+  compute_node_flavor: ""
+  compute_node_image: ""
+  grid_node_flavor: ""
+  grid_node_image: ""
+  compute_node_allow_ssh_cidr: ""
+  install_node_allow_ssh_cidr: ""
+  install_node_allow_http_cidr: ""
+  grid_node_allow_ssh_cidr: ""
+  grid_node_allow_grid_cidr: ""
+  galera_node_flavor: ""
+  galera_node_image: ""
+  fgci_network: ""
+  fgci_network_cidr: ""

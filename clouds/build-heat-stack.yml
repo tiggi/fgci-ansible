@@ -15,6 +15,12 @@
 
 - hosts: localhost
   gather_facts: no
+  tasks:
+    - name: print registered heat_stack variable when verbosity is 2
+      debug: var=heat_stack verbosity=2
+
+- hosts: localhost
+  gather_facts: no
   connection: local
   tasks:
     - name: Add Galera nodes to inventory
@@ -27,6 +33,8 @@
       with_items:
         - "{{ heat_stack.stack.outputs[0].output_value }}"
         - "{{ heat_stack.stack.outputs[1].output_value }}"
+        - "{{ heat_stack.stack.outputs[2].output_value }}"
+        - "{{ heat_stack.stack.outputs[3].output_value }}"
       when: item.addresses[etherpad_network_name]|length == 1
 
 - hosts: localhost
@@ -43,7 +51,45 @@
       with_items:
         - "{{ heat_stack.stack.outputs[0].output_value }}"
         - "{{ heat_stack.stack.outputs[1].output_value }}"
+        - "{{ heat_stack.stack.outputs[2].output_value }}"
+        - "{{ heat_stack.stack.outputs[3].output_value }}"
       when: item.addresses[etherpad_network_name]|length == 2
+
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Add compute nodes to inventory
+      add_host:
+        name: "{{ item.name }}"
+        groups: "{{ item.metadata.ansible_group }}"
+        ansible_ssh_host: "{{ item.addresses[etherpad_network_name][2].addr }}"
+        ansible_ssh_user: "{{ vm_user_account }}"
+      no_log: yes
+      with_items:
+        - "{{ heat_stack.stack.outputs[0].output_value }}"
+        - "{{ heat_stack.stack.outputs[1].output_value }}"
+        - "{{ heat_stack.stack.outputs[2].output_value }}"
+        - "{{ heat_stack.stack.outputs[3].output_value }}"
+      when: item.addresses[etherpad_network_name]|length == 3
+
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Add grid node to inventory
+      add_host:
+        name: "{{ item.name }}"
+        groups: "{{ item.metadata.ansible_group }}"
+        ansible_ssh_host: "{{ item.addresses[etherpad_network_name][1].addr }}"
+        ansible_ssh_user: "{{ vm_user_account }}"
+      no_log: yes
+      with_items:
+        - "{{ heat_stack.stack.outputs[0].output_value }}"
+        - "{{ heat_stack.stack.outputs[1].output_value }}"
+        - "{{ heat_stack.stack.outputs[2].output_value }}"
+        - "{{ heat_stack.stack.outputs[3].output_value }}"
+      when: item.addresses[etherpad_network_name]|length == 4
 
 - hosts: localhost
   gather_facts: no
@@ -57,7 +103,7 @@
   tasks:
     - name: Wait for the FGCI frontend node to become accessible
       wait_for:
-        host: "{{ hostvars[groups['etherpad'][0]]['ansible_ssh_host'] }}"
+        host: "{{ hostvars[groups['install'][0]]['ansible_ssh_host'] }}"
         port: 22
         state: started
 
@@ -69,4 +115,10 @@
         host: "{{ ansible_ssh_host }}"
         port: 22
         state: started
-      delegate_to: etherpad_node
+      delegate_to: install_node
+
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: print groups in ansible inventory when verbosity is 1
+      debug: var=groups verbosity=1

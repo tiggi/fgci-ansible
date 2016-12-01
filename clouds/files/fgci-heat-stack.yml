@@ -1,0 +1,203 @@
+heat_template_version: 2015-10-15
+
+description: >
+  Build machines for a deployment of an FGCI cluster with a separate 
+  database backend on OpenStack.
+
+parameters:
+  ssh_key_name:
+    description: The name of the SSH key in OpenStack to add to hosts.
+    type: string
+  install_node_flavor:
+    description: The flavor to use for the install VM
+    type: string
+  install_node_image:
+    description: The image to use for the install VM
+    type: string
+  compute_node_flavor:
+    description: The flavor to use for the compute node VMs
+    type: string
+  compute_node_image:
+    description: The image to use for the compute node VMs
+    type: string
+  grid_node_flavor:
+    description: The flavor to use for the grid VM
+    type: string
+  grid_node_image:
+    description: The image to use for the grid VM
+    type: string
+  fgci_network:
+    description: The internal network to use
+    type: string
+  install_node_allow_ssh_cidr:
+    description: The CIDR where SSH is allowed to the install node from.
+    type: string
+  install_node_allow_http_cidr:
+    description: >
+      The CIDR of the network where the Etherpad application should be
+      accessible. Use 0.0.0.0/0 to allow access from anywhere.
+    type: string
+  compute_node_allow_ssh_cidr:
+    description: The CIDR where SSH is allowed to the compute nodes from.
+    type: string
+  grid_node_allow_ssh_cidr:
+    description: The CIDR where SSH is allowed to the grid node from.
+    type: string
+  grid_node_allow_grid_cidr:
+    description: >
+      The CIDR of the network where the Grid application should be
+      accessible. Use 0.0.0.0/0 to allow access from anywhere.
+    type: string
+  galera_node_flavor:
+    description: The flavor to use for Galera nodes.
+    type: string
+  galera_node_image:
+    description: The image to use for Galera nodes.
+    type: string
+  floating_ip_pool:
+    type: string
+    label: Floating IP pool
+    description: The pool from which floating IPs should be reserved.
+    default: 'public'
+  fgci_network_cidr:
+    type: string
+    description: The CIDR of the internal network for the instances
+    default: '192.168.1.0/24'
+
+resources:
+  backend_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: fgci_backend_secgroup
+      rules:
+        - protocol: tcp
+        - protocol: tcp
+          remote_ip_prefix: { get_param: fgci_network_cidr }
+          port_range_min: 3306
+          port_range_max: 3306
+        - protocol: tcp
+          remote_mode: remote_group_id
+          port_range_min: 4444
+          port_range_max: 4444
+        - protocol: tcp
+          remote_mode: remote_group_id
+          port_range_min: 4567
+          port_range_max: 4567
+        - protocol: tcp
+          remote_mode: remote_group_id
+          port_range_min: 4568
+          port_range_max: 4568
+        - protocol: tcp
+          remote_ip_prefix: { get_param: fgci_network_cidr }
+          port_range_min: 22
+          port_range_max: 22
+
+  frontend_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: fgci_frontend_secgroup
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: { get_param: install_node_allow_ssh_cidr }
+          port_range_min: 22
+          port_range_max: 22
+        - protocol: tcp
+          remote_ip_prefix: { get_param: install_node_allow_http_cidr }
+          port_range_min: 80
+          port_range_max: 80
+
+  install_public_ip:
+    type: OS::Nova::FloatingIP
+    properties:
+      pool: { get_param: floating_ip_pool }
+
+  install_node:
+    type: OS::Nova::Server
+    properties:
+      name: install_node
+      flavor: { get_param: install_node_flavor }
+      image: { get_param: install_node_image }
+      key_name: { get_param: ssh_key_name }
+      security_groups:
+        - { get_resource: frontend_secgroup }
+      networks:
+        - network: { get_param: fgci_network }
+      metadata: { 'ansible_group': 'install' }
+
+  install_floating_ip_association:
+    type: OS::Nova::FloatingIPAssociation
+    properties:
+      floating_ip: { get_resource: install_public_ip }
+      server_id: { get_resource: install_node }
+
+  galera_nodes:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: 3
+      resource_def:
+        type: OS::Nova::Server
+        properties:
+          name: galera_node%index%
+          flavor: { get_param: galera_node_flavor }
+          image: { get_param: galera_node_image }
+          key_name: { get_param: ssh_key_name }
+          security_groups:
+            - { get_resource: backend_secgroup }
+          networks:
+            - network: { get_param: fgci_network }
+          metadata: { 'ansible_group': 'galera' }
+
+  compute_nodes:
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: 2
+      resource_def:
+        type: OS::Nova::Server
+        properties:
+          name: c%index%
+          flavor: { get_param: compute_node_flavor }
+          image: { get_param: compute_node_image }
+          key_name: { get_param: ssh_key_name }
+          security_groups:
+            - { get_resource: backend_secgroup }
+          networks:
+            - network: { get_param: fgci_network }
+          metadata: { 'ansible_group': 'compute' }
+
+  grid_public_ip:
+    type: OS::Nova::FloatingIP
+    properties:
+      pool: { get_param: floating_ip_pool }
+
+  grid_node:
+    type: OS::Nova::Server
+    properties:
+      name: grid_node
+      flavor: { get_param: grid_node_flavor }
+      image: { get_param: grid_node_image }
+      key_name: { get_param: ssh_key_name }
+      security_groups:
+        - { get_resource: frontend_secgroup }
+      networks:
+        - network: { get_param: fgci_network }
+      metadata: { 'ansible_group': 'grid' }
+
+  grid_floating_ip_association:
+    type: OS::Nova::FloatingIPAssociation
+    properties:
+      floating_ip: { get_resource: grid_public_ip }
+      server_id: { get_resource: grid_node }
+
+outputs:
+  install_node:
+    description: The Install node
+    value: { get_attr: [install_node, show] }
+  galera_nodes_group:
+    description: The group of Galera nodes
+    value: { get_attr: [galera_nodes, show] }
+  compute_nodes_group:
+    description: The group of Compute nodes
+    value: { get_attr: [compute_nodes, show] }
+  grid_node:
+    description: The Grid node
+    value: { get_attr: [grid_node, show] }
