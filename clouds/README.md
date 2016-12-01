@@ -3,14 +3,32 @@ FGCI-ansible on openstack
 
 Sets up an FGCI cluster in openstack
 
-Sh/Could this be replaced with a PB - Pouta Blueprint?
+Instructions regarding heat:
+
+https://github.com/CSC-IT-Center-for-Science/etherpad-deployment-demo
 
 Usage
 ------
 
  - provision at least three virtual machines
- - enter their names and ip addresses into hosts file and ssh.config
- - set selinux to disabled and reboot
+ - set selinux to disabled and reboot - can be done with post-install??
+
+Setup of virtual machine + heat and heat deployments
+---------
+
+Because nova client was unhappy for me on my RHEL7 laptop doing this in an Ubuntu 16.04 VM:
+
+Remember to allow the VM to SSH into the nodes in the stack and ssh -A (forward SSH agent)
+
+<pre>
+sudo apt-get install python-pip python-setuptools gcc python-dev libssl-dev
+sudo pip install ansible shade
+git clone fgci-ansible
+checkout openstack
+# fetch and source the openrc.sh file from openstack
+# at this point "nova list" should work and you can continue with instructions from 
+# https://github.com/CSC-IT-Center-for-Science/etherpad-deployment-demo
+</pre>
 
 Differences
 -----------
@@ -22,4 +40,3 @@ Known Limitations:
 ------------------
 
  - The "reinstall" script doesn't work. How to tie this into openstack reprovision?
- - Inventory of the hosts should be dynamic - so that one doesn't have to enter IP addresses into the hosts files or ssh.config
