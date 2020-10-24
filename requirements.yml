@@ -19,7 +19,7 @@
 
 - src: https://github.com/CSCfi/ansible-role-rsyslog
   path: roles
-  version: v1.1.7
+  version: v1.1.8
 
 - src: https://github.com/CSCfi/ansible-role-dhcp_server
   path: roles
@@ -44,7 +44,7 @@
 
 - src: https://github.com/CSCfi/ansible-role-slurm
   path: roles
-  version: v2.0.3
+  version: v2.0.4
 
 - src: https://github.com/CSCfi/ansible-role-cvmfs
   path: roles
@@ -62,7 +62,7 @@
 - src: https://github.com/willshersystems/ansible-sshd
   path: roles
   name: ansible-role-sshd
-  version: v0.7.6
+  version: v0.8.3
 
 - src: https://github.com/CSCfi/ansible-system-limits
   path: roles
@@ -73,9 +73,9 @@
   path: roles
   version: v1.4.5
 
-- src: https://github.com/CSCfi/ansible-role-yum
+- src: https://github.com/fgci-org/ansible-role-yum
   path: roles
-  version: v1.5.5
+  version: v1.5.6
 
 - src: https://github.com/CSCfi/ansible-role-flowdock
   path: roles
@@ -83,7 +83,7 @@
 
 - src: https://github.com/CSCfi/ansible-role-collectd
   path: roles
-  version: v2.1.3
+  version: v2.1.4
 
 - src: https://github.com/CSCfi/ansible-role-pxe_config
   path: roles
@@ -105,17 +105,17 @@
   path: roles
   version: v1.3.1
 
-- src: https://github.com/CSCfi/ansible-role-arc-frontend
+- src: https://github.com/CSCfi/ansible-role-arc-frontend-6
   path: roles
-  version: v1.4.9
+  version: v1.3.1
 
 - src: https://github.com/fgci-org/ansible-role-fgci-bash
   path: roles
   version: v1.3.0
 
-- src: https://github.com/CSCfi/ansible-role-cuda
+- src: https://github.com/fgci-org/ansible-role-cuda
   path: roles
-  version: v1.6.7
+  version: v1.6.8
 
 - src: https://github.com/CSCfi/ansible-role-nhc
   path: roles
